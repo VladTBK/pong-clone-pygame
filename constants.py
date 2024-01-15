@@ -7,3 +7,5 @@ class cfg:
     ball_size = 10
     player_height = 200
     player_width = 20
+    player1_score = 0
+    player2_score = 0
