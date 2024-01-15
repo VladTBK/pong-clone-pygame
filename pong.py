@@ -2,11 +2,6 @@ import pygame
 from constants import cfg
 
 
-def check_key(key):
-    if key[pygame.K_q]:
-        pygame.quit()
-
-
 def refresh(check_run):
     pygame.time.delay(10)
     for event in pygame.event.get():
@@ -14,6 +9,35 @@ def refresh(check_run):
             check_run = False
     screen.fill(cfg.color_dict[1])
     return check_run
+
+
+class Player:
+    def __init__(self, color, pos_X, pos_Y, width, height, turn):
+        self.color = color
+        self.pos_X = pos_X
+        self.pos_Y = pos_Y
+        self.vx = cfg.player_speed
+        self.vy = cfg.player_speed
+        self.turn = turn
+        self.width = width
+        self.height = height
+        pygame.draw.rect(
+            screen, self.color, (self.pos_X, self.pos_Y, self.width, self.height)
+        )
+
+    def update_state(self, key):
+        if self.turn:
+            if key[pygame.K_w] and self.pos_Y >= cfg.player_width:
+                self.pos_Y -= self.vx
+            if (
+                key[pygame.K_s]
+                and self.pos_Y <= cfg.height - cfg.player_height - cfg.player_width
+            ):
+                self.pos_Y += self.vx
+
+        pygame.draw.rect(
+            screen, self.color, (self.pos_X, self.pos_Y, self.width, self.height)
+        )
 
 
 class Ball:
@@ -45,12 +69,32 @@ clock = pygame.time.Clock()
 
 def main():
     running = True
-    ball = Ball(cfg.color_dict[0], cfg.width / 2, cfg.height / 2, 20)
+    ball = Ball(cfg.color_dict[0], cfg.width / 2, cfg.height / 2, cfg.ball_size)
+    player1 = Player(
+        cfg.color_dict[2],
+        cfg.width - cfg.player_width * 2,
+        cfg.height / 2 - cfg.player_height / 2,
+        cfg.player_width,
+        cfg.player_height,
+        False,
+    )
+    player2 = Player(
+        cfg.color_dict[2],
+        cfg.player_width,
+        cfg.height / 2 - cfg.player_height / 2,
+        cfg.player_width,
+        cfg.player_height,
+        True,
+    )
     while running:
         running = refresh(running)
         curr_key = pygame.key.get_pressed()
-        check_key(curr_key)
+        if curr_key[pygame.K_q]:
+            pygame.quit()
+
         ball.update_state()
+        player1.update_state(curr_key)
+        player2.update_state(curr_key)
         pygame.display.flip()
         clock.tick(60) / 1000
 
